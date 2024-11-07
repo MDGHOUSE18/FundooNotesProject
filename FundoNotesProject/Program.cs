@@ -9,6 +9,7 @@ using RepositoryLayer.Services;
 using System.Text;
 using MassTransit;
 using RepositoryLayer.Helpers;
+using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,6 +57,41 @@ builder.Services.AddMassTransit(x =>
     }));
 });
 builder.Services.AddMassTransitHostedService();
+
+//Adding Authorization Option in Swagger
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "JWTToken_Auth_API",
+        Version = "v1"
+    });
+    // Define the security scheme for Bearer tokens
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter only the JWT token; 'Bearer' is added automatically.",
+    });
+    // Add security requirement to ensure that Bearer token is used
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

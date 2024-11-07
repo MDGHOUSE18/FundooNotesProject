@@ -2,6 +2,7 @@
 using CommonLayer.Request_Models;
 using ManagerLayer.Interfaces;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryLayer.Entities;
@@ -106,6 +107,7 @@ namespace FundooNotesProject.Controllers
 
 
         [HttpPost]
+        [Authorize]
         [Route("resetpassword")]
         public IActionResult ForgetPassword(string email, [FromBody] ResetPassword resetPassword)
         {
