@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryLayer.Entities;
+using RepositoryLayer.Helpers;
 using RepositoryLayer.Migrations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -19,11 +20,13 @@ namespace FundooNotesProject.Controllers
     {
         private readonly IUserManager manager;
         private readonly IBus bus;
+        private readonly TokenHelper tokenHelper;
         //private readonly ILogger<UserController> logger;
 
-        public UserController(IUserManager manager, IBus bus) {
+        public UserController(IUserManager manager, IBus bus,TokenHelper tokenHelper) {
             this.manager = manager;
             this.bus = bus;
+            this.tokenHelper = tokenHelper;
             
         }
 
@@ -106,12 +109,24 @@ namespace FundooNotesProject.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "ResetPasswordScheme")]
         [HttpPost]
         [Route("resetpassword")]
         public IActionResult ResetPassword( [FromBody] ResetPassword resetPassword)
         {
-            
+            // Extract the token from the Authorization header
+            var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            // Validate the token
+            if (string.IsNullOrWhiteSpace(token) || !tokenHelper.ValidateResetPasswordToken(token))
+            {
+                return Unauthorized(new ResponseModel<string>
+                {
+                    Success = false,
+                    Message = "Invalid or expired token.",
+                    Data = null
+                });
+            }
 
             string email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             
@@ -121,7 +136,7 @@ namespace FundooNotesProject.Controllers
                 return BadRequest(new ResponseModel<string>
                 {
                     Success = false,
-                    Message = "Invalid input. Please provide a valid email and password.",
+                    Message = "Invalid credentials. Please provide a valid credentials",
                     Data = null
                 });
             }

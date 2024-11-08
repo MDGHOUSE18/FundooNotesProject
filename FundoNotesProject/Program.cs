@@ -11,20 +11,29 @@ using MassTransit;
 using RepositoryLayer.Helpers;
 using Microsoft.OpenApi.Models;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Add endpoint API explorer
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<FundooDBContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("FundooDB")));
-builder.Services.AddTransient<IUserManager,UserManager>();
-builder.Services.AddTransient<IUserRepo,UserRepo>();
+
+// Database configuration for FundooDBContext
+builder.Services.AddDbContext<FundooDBContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("FundooDB"))
+);
+
+// Dependency Injection for Managers and Repositories
+builder.Services.AddTransient<IUserManager, UserManager>();
+builder.Services.AddTransient<IUserRepo, UserRepo>();
 builder.Services.AddTransient<TokenHelper>();
-// JWT configuration
+builder.Services.AddTransient<INotesManager, NotesManager>();
+builder.Services.AddTransient<INotesRepo, NotesRepo>();
+
+// JWT Authentication configuration
+// Configure default authentication scheme for login tokens
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -44,7 +53,27 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-//Adding Authorization Option in Swagger
+
+// Configure authentication scheme specifically for reset password tokens
+builder.Services.AddAuthentication()
+.AddJwtBearer("ResetPasswordScheme", options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:ResetPasswordKey"])),
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+
+
+// Adding Swagger with JWT Authorization support
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -52,7 +81,8 @@ builder.Services.AddSwaggerGen(c =>
         Title = "JWTToken_Auth_API",
         Version = "v1"
     });
-    // Define the security scheme for Bearer tokens
+
+    // Define the security scheme for Bearer tokens in Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
         Name = "Authorization",
@@ -62,13 +92,14 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "Enter only the JWT token; 'Bearer' is added automatically.",
     });
-    // Add security requirement to ensure that Bearer token is used
+
+    // Add security requirement to enforce Bearer token use
     c.AddSecurityRequirement(new OpenApiSecurityRequirement {
         {
             new OpenApiSecurityScheme {
                 Reference = new OpenApiReference {
                     Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
+                    Id = "Bearer"
                 }
             },
             new string[] {}
@@ -76,8 +107,37 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// builder.Services.AddSwaggerGen(
+// option =>
+// {
+//     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+//     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+//     {
+//         In = ParameterLocation.Header,
+//         Description = "Please enter a valid token",
+//         Name = "Authorization",
+//         Type = SecuritySchemeType.Http,
+//         BearerFormat = "JWT",
+//         Scheme = "Bearer"
+//     });
+//     option.AddSecurityRequirement(new OpenApiSecurityRequirement
+//     {
+//         {
+//             new OpenApiSecurityScheme
+//             {
+//                 Reference = new OpenApiReference
+//                 {
+//                     Type = ReferenceType.SecurityScheme,
+//                     Id = "Bearer"
+//                 }
+//             },
+//             new string[]{}
+//         }
+//     });
+// });
 
 
+// MassTransit configuration for RabbitMQ
 builder.Services.AddMassTransit(x =>
 {
     x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(config =>
@@ -92,55 +152,7 @@ builder.Services.AddMassTransit(x =>
 });
 builder.Services.AddMassTransitHostedService();
 
-//builder.Services.AddSwaggerGen(
-//            option =>
-//            {
-//                option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
-//                option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-//                {
-//                    In = ParameterLocation.Header,
-//                    Description = "Please enter a valid token",
-//                    Name = "Authorization",
-//                    Type = SecuritySchemeType.Http,
-//                    BearerFormat = "JWT",
-//                    Scheme = "Bearer"
-//                });
-//                option.AddSecurityRequirement(new OpenApiSecurityRequirement
-//{
-//    {
-//        new OpenApiSecurityScheme
-//        {
-//            Reference = new OpenApiReference
-//            {
-//                Type=ReferenceType.SecurityScheme,
-//                Id="Bearer"
-//            }
-//        },
-//        new string[]{}
-//    }
-//});
-//            });
-//builder.Services.AddAuthentication(x =>
-//{
-//    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//}).AddJwtBearer(o =>
-//{
-//    var Key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
-//    o.SaveToken = true;
-//    o.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidateLifetime = true,
-//        ValidateIssuerSigningKey = true,
-//        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-//        ValidAudience = builder.Configuration["Jwt:Audience"],
-//        IssuerSigningKey = new SymmetricSecurityKey(Key)
-//    };
-//});
-
-
+// Enable Authorization
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -148,17 +160,19 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    // Enable Swagger UI in development
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Enable authentication
+// Enable Authentication and Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Enable HTTPS redirection
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
+// Map Controllers
 app.MapControllers();
 
 app.Run();

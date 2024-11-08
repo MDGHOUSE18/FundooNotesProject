@@ -73,7 +73,7 @@ namespace RepositoryLayer.Services
             ForgetPasswordModel forgetPassword = new ForgetPasswordModel();
             forgetPassword.Email = User.Email;
             forgetPassword.UserId=User.UserId;
-            forgetPassword.Token = _tokenHelper.GenerateJwtToken(User.UserId,User.Email);
+            forgetPassword.Token = _tokenHelper.GenerateResetPasswordToken(User.UserId,User.Email);
             return forgetPassword;
         }
 
