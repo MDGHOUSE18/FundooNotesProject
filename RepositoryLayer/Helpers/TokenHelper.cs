@@ -26,7 +26,7 @@ namespace RepositoryLayer.Helpers
 
             var claims = new[]
             {
-                new Claim("email", email),
+                new Claim(ClaimTypes.Email, email),
                 new Claim("UserId", userId.ToString())
             };
 

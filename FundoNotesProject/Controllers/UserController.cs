@@ -106,11 +106,16 @@ namespace FundooNotesProject.Controllers
         }
 
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         [Route("resetpassword")]
-        public IActionResult ForgetPassword(string email, [FromBody] ResetPassword resetPassword)
+        public IActionResult ResetPassword( [FromBody] ResetPassword resetPassword)
         {
+            
+
+            string email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            
+
             if (string.IsNullOrWhiteSpace(email) || resetPassword == null || string.IsNullOrWhiteSpace(resetPassword.Password))
             {
                 return BadRequest(new ResponseModel<string>
