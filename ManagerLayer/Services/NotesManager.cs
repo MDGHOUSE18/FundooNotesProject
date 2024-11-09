@@ -19,19 +19,24 @@ namespace ManagerLayer.Services
             _notesrepo = notesrepo;
         }
 
+
         public NotesEntity CreateNewNotes(NotesModel notesModel,int userId)
         {
             return _notesrepo.CreateNotes(notesModel,userId);
         }
 
+        public bool IsNotesExists(int notesId)
+        {
+            return _notesrepo.IsNotesExists(notesId);
+        }
         public List<NotesEntity> GetAllNotes(int userId)
         {
             return _notesrepo.GetAllNotes(userId);
         }
 
-        public string GetNotesById(int userId, string noteId)
+        public NotesEntity GetNotesById(int noteId)
         {
-            return _notesrepo.GetNotesById();
+            return _notesrepo.GetNotesById(noteId);
         }
 
 
@@ -40,9 +45,9 @@ namespace ManagerLayer.Services
             return _notesrepo.UpdateNotes();
         }
 
-        public string DeleteNotes(int userId, int notesId)
+        public bool DeleteNotes(int notesId)
         {
-            return _notesrepo.DeleteNotes(userId, notesId);
+            return _notesrepo.DeleteNotes(notesId);
         }
     }
 }

@@ -6,9 +6,10 @@ namespace RepositoryLayer.Interfaces
     public interface INotesRepo
     {
         NotesEntity CreateNotes(NotesModel notesModel, int userId);
-        string DeleteNotes(int userId, int notesId);
+        bool IsNotesExists(int notesId);
+        bool DeleteNotes(int notesId);
         List<NotesEntity> GetAllNotes(int userId);
-        string GetNotesById();
+        NotesEntity GetNotesById(int noteId);
         string UpdateNotes();
     }
 }

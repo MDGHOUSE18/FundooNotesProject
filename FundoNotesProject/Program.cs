@@ -31,6 +31,8 @@ builder.Services.AddTransient<IUserRepo, UserRepo>();
 builder.Services.AddTransient<TokenHelper>();
 builder.Services.AddTransient<INotesManager, NotesManager>();
 builder.Services.AddTransient<INotesRepo, NotesRepo>();
+builder.Services.AddTransient<ICollaboratorsManager, CollaboratorsManager>();
+builder.Services.AddTransient<ICollaboratorsRepo, CollaboratorsRepo>();
 
 // JWT Authentication configuration
 // Configure default authentication scheme for login tokens

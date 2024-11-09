@@ -50,19 +50,82 @@ namespace RepositoryLayer.Services
 
         }
 
-        public string GetNotesById()
+        public bool IsNotesExists(int notesId)
         {
+            var notes = _context.Notes.FirstOrDefault(x => x.NotesId == notesId);
+            if (notes != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public NotesEntity GetNotesById(int noteId)
+        {
+            var notes = _context.Notes.FirstOrDefault(x => x.NotesId == noteId);
+            if (notes !=null)
+            {
+                return notes;
+            }
             return null;
         }
 
-        public string UpdateNotes()
+        public NotesEntity UpdateNotes(int notesId,UpdateNotesModel updateNotesModel)
         {
+            var notes = GetNotesById(notesId);
+            if (notes != null && updateNotesModel != null)
+            {
+                // Update only if there are new values
+                if (updateNotesModel.Title != null)
+                {
+                    notes.Title = updateNotesModel.Title;
+                }
+                if (updateNotesModel.Description != null)
+                {
+                    notes.Description = updateNotesModel.Description;
+                }
+                if (updateNotesModel.Remainder != DateTime.MinValue)
+                {
+                    notes.Remainder = updateNotesModel.Remainder;
+                }
+                if (updateNotesModel.Colour != null)
+                {
+                    notes.Colour = updateNotesModel.Colour;
+                }
+                if (updateNotesModel.Image != null)
+                {
+                    notes.Image = updateNotesModel.Image;
+                }
+
+                // Correct assignment for boolean fields
+                notes.IsArchive = updateNotesModel.IsArchive;
+                notes.IsPin = updateNotesModel.IsPin;
+                notes.IsTrash = updateNotesModel.IsTrash;
+
+                // Update timestamp
+                notes.UpdatedAt = DateTime.Now;
+
+                // Save changes to the database
+                _context.SaveChanges();
+                return notes;
+            }
             return null;
         }
-        public string DeleteNotes(int userId, int notesId)
+        public bool DeleteNotes(int notesId)
         {
-            return null;
+            var notes = _context.Notes.FirstOrDefault(x => x.NotesId == notesId);
+            if (notes != null)
+            {
+                _context.Notes.Remove(notes);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
+        string INotesRepo.UpdateNotes()
+        {
+            return null;
+        }
     }
 }
