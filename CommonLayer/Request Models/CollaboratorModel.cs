@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CommonLayer.Request_Models
 {
-    public class AddCollaboratorModel
+    public class CollaboratorModel
     {
         public int NotesId { get; set; }
         public string Email { get; set; }

@@ -20,7 +20,7 @@ namespace ManagerLayer.Services
         }
 
 
-        public NotesEntity CreateNewNotes(NotesModel notesModel,int userId)
+        public NotesEntity CreateNotes(NotesModel notesModel,int userId)
         {
             return _notesrepo.CreateNotes(notesModel,userId);
         }
@@ -40,14 +40,38 @@ namespace ManagerLayer.Services
         }
 
 
-        public string UpdateNotes()
+        public NotesEntity UpdateNotes(int notesId, UpdateNotesModel updateNotesModel)
         {
-            return _notesrepo.UpdateNotes();
+            return _notesrepo.UpdateNotes(notesId,updateNotesModel);
         }
 
         public bool DeleteNotes(int notesId)
         {
             return _notesrepo.DeleteNotes(notesId);
         }
+
+        public bool UpdateNotesColour(int notesId,string newColour)
+        {
+            return _notesrepo.UpdateNotesColour(notesId,newColour);
+        }
+
+        public bool UpdateNotesRemainder(int notesId, DateTime? remainder)
+        {
+            return _notesrepo.UpdateNotesRemainder(notesId, remainder);
+        }
+
+        public bool ToggleArchiveStatus(int notesId)
+        {
+            return _notesrepo.ToggleArchiveStatus(notesId);
+        }
+        public bool TogglePinStatus(int notesId)
+        {
+            return _notesrepo.TogglePinStatus(notesId);
+        }
+        public bool ToggleTrashStatus(int notesId)
+        {
+            return _notesrepo.ToggleTrashStatus(notesId);
+        }
+
     }
 }

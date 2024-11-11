@@ -63,54 +63,50 @@ namespace RepositoryLayer.Services
         public NotesEntity GetNotesById(int noteId)
         {
             var notes = _context.Notes.FirstOrDefault(x => x.NotesId == noteId);
-            if (notes !=null)
+            if (notes != null)
             {
                 return notes;
             }
             return null;
         }
 
-        public NotesEntity UpdateNotes(int notesId,UpdateNotesModel updateNotesModel)
+        public NotesEntity UpdateNotes(int notesId, UpdateNotesModel updateNotesModel)
         {
             var notes = GetNotesById(notesId);
             if (notes != null && updateNotesModel != null)
             {
+                bool isUpdated = false;
+
                 // Update only if there are new values
-                if (updateNotesModel.Title != null)
+                if (updateNotesModel.Title != null && notes.Title != updateNotesModel.Title)
                 {
                     notes.Title = updateNotesModel.Title;
+                    isUpdated = true;
                 }
-                if (updateNotesModel.Description != null)
+                if (updateNotesModel.Description != null && notes.Description != updateNotesModel.Description)
                 {
                     notes.Description = updateNotesModel.Description;
+                    isUpdated = true;
                 }
-                if (updateNotesModel.Remainder != DateTime.MinValue)
-                {
-                    notes.Remainder = updateNotesModel.Remainder;
-                }
-                if (updateNotesModel.Colour != null)
-                {
-                    notes.Colour = updateNotesModel.Colour;
-                }
-                if (updateNotesModel.Image != null)
+                if (updateNotesModel.Image != null && notes.Image != updateNotesModel.Image)
                 {
                     notes.Image = updateNotesModel.Image;
+                    isUpdated = true;
                 }
 
-                // Correct assignment for boolean fields
-                notes.IsArchive = updateNotesModel.IsArchive;
-                notes.IsPin = updateNotesModel.IsPin;
-                notes.IsTrash = updateNotesModel.IsTrash;
 
-                // Update timestamp
-                notes.UpdatedAt = DateTime.Now;
+                if (isUpdated)
+                {
+                    notes.UpdatedAt = DateTime.Now;
 
-                // Save changes to the database
-                _context.SaveChanges();
+                    _context.SaveChanges();
+                }
+
                 return notes;
             }
             return null;
         }
+
         public bool DeleteNotes(int notesId)
         {
             var notes = _context.Notes.FirstOrDefault(x => x.NotesId == notesId);
@@ -123,9 +119,76 @@ namespace RepositoryLayer.Services
             return false;
         }
 
-        string INotesRepo.UpdateNotes()
+        public bool UpdateNotesColour(int notesId, string newColour)
         {
-            return null;
+            var notes = _context.Notes.FirstOrDefault(x => x.NotesId == notesId);
+
+            if (notes.Colour != newColour)
+            {
+                notes.Colour = newColour;
+                notes.UpdatedAt = DateTime.Now;
+
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
         }
+
+        public bool UpdateNotesRemainder(int notesId, DateTime? remainder)
+        {
+            var notes = _context.Notes.FirstOrDefault(x => x.NotesId == notesId);
+            if (notes.Remainder != remainder)
+            {
+                if (remainder == null || remainder == DateTime.MinValue)
+                {
+                    notes.Remainder = null;
+                }
+                else
+                {
+                    notes.Remainder = remainder;
+                }
+                notes.UpdatedAt = DateTime.Now;
+
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+
+        public bool TogglePinStatus(int notesId)
+        {
+            var notes = _context.Notes.FirstOrDefault(x => x.NotesId == notesId);
+
+            if (notes.IsPin == false && notes.IsArchive == true) notes.IsArchive = false;
+
+            notes.IsPin = !notes.IsPin;
+            _context.SaveChanges();
+
+            return true;
+        }
+        public bool ToggleArchiveStatus(int notesId)
+        {
+            var notes = _context.Notes.FirstOrDefault(x => x.NotesId == notesId);
+
+            if (notes.IsArchive == false && notes.IsPin == true) notes.IsPin = false;
+
+            notes.IsArchive = !notes.IsArchive;
+            _context.SaveChanges();
+
+            return true;
+        }
+
+        public bool ToggleTrashStatus(int notesId)
+        {
+            var notes = _context.Notes.FirstOrDefault(x => x.NotesId == notesId);
+
+            if (notes.IsTrash == false && notes.IsPin == true) notes.IsPin = false;
+
+            notes.IsTrash = !notes.IsTrash;
+            _context.SaveChanges();
+
+            return true;
+        }
+
     }
 }

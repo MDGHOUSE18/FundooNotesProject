@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CommonLayer
+namespace CommonLayer.Responses
 {
-    public class ResponseModel<T>
+    public class Response
     {
         public bool Success { get; set; }
         public string? Message { get; set; }
-        public T? Data { get; set; }
     }
 }

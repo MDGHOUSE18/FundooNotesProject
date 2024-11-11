@@ -1,5 +1,6 @@
 ﻿using CommonLayer;
 using CommonLayer.Request_Models;
+using CommonLayer.Responses;
 using ManagerLayer.Interfaces;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;

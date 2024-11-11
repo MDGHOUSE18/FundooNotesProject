@@ -1,5 +1,6 @@
 ﻿using CommonLayer;
 using CommonLayer.Request_Models;
+using CommonLayer.Responses;
 using ManagerLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +29,7 @@ namespace FundooNotesProject.Controllers
         [Authorize]
         [HttpPost]
         [Route("add")]
-        public IActionResult AddCollaborator([FromBody] AddCollaboratorModel model)
+        public IActionResult AddCollaborator([FromBody] CollaboratorModel model)
         {
             var userExist = _userManager.IsRegistered(model.Email);
             var notesExists = _notesManager.IsNotesExists(model.NotesId);
@@ -88,7 +89,28 @@ namespace FundooNotesProject.Controllers
             });
         }
 
+        [Authorize,HttpDelete]
+        [Route("delete")]
+        public IActionResult DeleteCollaborator([FromBody] CollaboratorModel model)
+        {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "UserId").Value);
+            var result = _collaboratorsManager.DeleteCollaborator(userId, model);
 
+            if (result)
+            {
+                return Ok(new ResponseModel<string>
+                {
+                    Success = true,
+                    Message = "Collaborator removed successfully."
+                });
+            }
+
+            return NotFound(new ResponseModel<string>
+            {
+                Success = true,
+                Message = "Collaborator not found for the provided details."
+            });
+        }
 
     }
 }

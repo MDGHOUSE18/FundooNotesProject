@@ -20,7 +20,7 @@ namespace RepositoryLayer.Services
             _context = context;
         }
 
-        public CollaboratorEntity AddCollaborator(AddCollaboratorModel collaboratorModel, int userId)
+        public CollaboratorEntity AddCollaborator(CollaboratorModel collaboratorModel, int userId)
         {
             CollaboratorEntity collaburator = new CollaboratorEntity();
 
@@ -39,5 +39,19 @@ namespace RepositoryLayer.Services
             return _context.Collaborators.Where(x => x.UserId == userId).ToList();
         }
 
+        public bool DeleteCollaborator(int userId, CollaboratorModel collaborator)
+        {
+            var collborator = _context.Collaborators.FirstOrDefault(
+                x => x.UserId == userId && x.Email ==collaborator.Email && x.NotesId == collaborator.NotesId);
+
+            if (collborator == null)
+            {
+                return false;
+            }
+            _context.Collaborators.Remove(collborator);
+
+            _context.SaveChanges();
+            return true;
+        }
     }
 }

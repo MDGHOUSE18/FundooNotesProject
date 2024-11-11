@@ -5,7 +5,8 @@ namespace ManagerLayer.Interfaces
 {
     public interface ICollaboratorsManager
     {
-        CollaboratorEntity AddCollaborator(AddCollaboratorModel collaboratorModel, int userId);
+        CollaboratorEntity AddCollaborator(CollaboratorModel collaboratorModel, int userId);
         List<CollaboratorEntity> GetCollaborators(int userId);
+        public bool DeleteCollaborator(int userId, CollaboratorModel collaborator);
     }
 }

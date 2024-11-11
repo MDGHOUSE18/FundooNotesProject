@@ -20,7 +20,7 @@ namespace ManagerLayer.Services
             this._collaboratorRepo = collaboratorRepo;
         }
 
-        public CollaboratorEntity AddCollaborator(AddCollaboratorModel collaboratorModel, int userId)
+        public CollaboratorEntity AddCollaborator(CollaboratorModel collaboratorModel, int userId)
         {
             return _collaboratorRepo.AddCollaborator(collaboratorModel, userId);
         }
@@ -28,6 +28,10 @@ namespace ManagerLayer.Services
         public List<CollaboratorEntity> GetCollaborators(int userId)
         {
             return _collaboratorRepo.GetCollaborators(userId);
+        }
+        public bool DeleteCollaborator(int userId, CollaboratorModel collaborator)
+        {
+            return _collaboratorRepo.DeleteCollaborator(userId, collaborator);
         }
 
     }

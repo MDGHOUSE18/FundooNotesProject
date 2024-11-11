@@ -16,7 +16,7 @@ namespace RepositoryLayer.Entities
         public int NotesId { get; set; }
         public String Title { get; set; }
         public String Description { get; set; }
-        public DateTime Remainder { get; set; } 
+        public DateTime? Remainder { get; set; } 
         public String Colour { get; set; } = "";
         public String Image { get; set; } = "";
         public bool IsArchive { get; set; }
