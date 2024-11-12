@@ -33,6 +33,8 @@ builder.Services.AddTransient<INotesManager, NotesManager>();
 builder.Services.AddTransient<INotesRepo, NotesRepo>();
 builder.Services.AddTransient<ICollaboratorsManager, CollaboratorsManager>();
 builder.Services.AddTransient<ICollaboratorsRepo, CollaboratorsRepo>();
+builder.Services.AddTransient<ILabelsManager, LabelsManager>();
+builder.Services.AddTransient<ILabelsRepo, LabelsRepo>();
 
 // JWT Authentication configuration
 // Configure default authentication scheme for login tokens
@@ -178,3 +180,4 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+

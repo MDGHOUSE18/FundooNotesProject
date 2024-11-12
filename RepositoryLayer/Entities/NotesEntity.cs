@@ -31,7 +31,8 @@ namespace RepositoryLayer.Entities
         [JsonIgnore]
         public virtual UserEntity NotesUser { get; set; }
 
-
+        // Many-to-many relationship with LabelEntity
+        public List<LabelEntity> Labels { get; set; } = new List<LabelEntity>();
 
 
     }
