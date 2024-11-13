@@ -12,7 +12,7 @@ using RepositoryLayer.Context;
 namespace RepositoryLayer.Migrations
 {
     [DbContext(typeof(FundooDBContext))]
-    [Migration("20241112093337_Labels")]
+    [Migration("20241113110548_Labels")]
     partial class Labels
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

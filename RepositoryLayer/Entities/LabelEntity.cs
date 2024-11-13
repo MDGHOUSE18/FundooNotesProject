@@ -19,7 +19,7 @@ namespace RepositoryLayer.Entities
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         // Many-to-many relationship with NotesEntity
-        //[JsonIgnore]
+        [JsonIgnore]
         public List<NotesEntity> Notes { get; set; } = new List<NotesEntity>();
 
         [ForeignKey("UserLabel")]

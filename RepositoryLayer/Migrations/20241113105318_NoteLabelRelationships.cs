@@ -1,14 +1,14 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace RepositoryLayer.Migrations
 {
-    public partial class Labels : Migration
+    public partial class NoteLabelRelationships : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Create Labels table
             migrationBuilder.CreateTable(
                 name: "Labels",
                 columns: table => new
@@ -31,6 +31,7 @@ namespace RepositoryLayer.Migrations
                         onDelete: ReferentialAction.NoAction);
                 });
 
+            // Create LabelEntityNotesEntity table (many-to-many relationship)
             migrationBuilder.CreateTable(
                 name: "LabelEntityNotesEntity",
                 columns: table => new
@@ -46,15 +47,16 @@ namespace RepositoryLayer.Migrations
                         column: x => x.LabelsLabelId,
                         principalTable: "Labels",
                         principalColumn: "LabelId",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_LabelEntityNotesEntity_Notes_NotesId",
                         column: x => x.NotesId,
                         principalTable: "Notes",
                         principalColumn: "NotesId",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
+            // Create indexes for the join table
             migrationBuilder.CreateIndex(
                 name: "IX_LabelEntityNotesEntity_NotesId",
                 table: "LabelEntityNotesEntity",
