@@ -10,12 +10,31 @@ using System.Text;
 using MassTransit;
 using RepositoryLayer.Helpers;
 using Microsoft.OpenApi.Models;
+using NLog.Web;
+using NLog;
 
-var builder = WebApplication.CreateBuilder(args);
+
+var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+logger.Debug("Application is starting up");
+
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
+
+
+// Ensure the "logs" folder exists within the project directory
+var logDirectory = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+if (!Directory.Exists(logDirectory))
+{
+    Directory.CreateDirectory(logDirectory);
+}
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
+// NLog: Setup NLog for Dependency injection
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
 
 // Add endpoint API explorer
 builder.Services.AddEndpointsApiExplorer();
@@ -24,6 +43,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<FundooDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("FundooDB"))
 );
+
+// Add Redis distributed cache
+builder.Services.AddStackExchangeRedisCache(options => { 
+    options.Configuration = builder.Configuration["RedisCacheUrl"]; 
+});
 
 // Dependency Injection for Managers and Repositories
 builder.Services.AddTransient<IUserManager, UserManager>();
@@ -111,35 +135,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// builder.Services.AddSwaggerGen(
-// option =>
-// {
-//     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
-//     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-//     {
-//         In = ParameterLocation.Header,
-//         Description = "Please enter a valid token",
-//         Name = "Authorization",
-//         Type = SecuritySchemeType.Http,
-//         BearerFormat = "JWT",
-//         Scheme = "Bearer"
-//     });
-//     option.AddSecurityRequirement(new OpenApiSecurityRequirement
-//     {
-//         {
-//             new OpenApiSecurityScheme
-//             {
-//                 Reference = new OpenApiReference
-//                 {
-//                     Type = ReferenceType.SecurityScheme,
-//                     Id = "Bearer"
-//                 }
-//             },
-//             new string[]{}
-//         }
-//     });
-// });
-
 
 // MassTransit configuration for RabbitMQ
 builder.Services.AddMassTransit(x =>
@@ -181,3 +176,15 @@ app.MapControllers();
 
 app.Run();
 
+}
+catch (Exception ex)
+{
+    // Catch setup errors
+    logger.Error(ex, "Application stopped because of an exception");
+    throw;
+}
+finally
+{
+    // Ensure to flush and stop internal timers/threads before application exit
+    LogManager.Shutdown();
+}

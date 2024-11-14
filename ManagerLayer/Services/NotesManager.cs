@@ -1,4 +1,5 @@
 ﻿using CommonLayer.Request_Models;
+using CommonLayer.Responses;
 using ManagerLayer.Interfaces;
 using RepositoryLayer.Entities;
 using RepositoryLayer.Interfaces;
@@ -29,7 +30,7 @@ namespace ManagerLayer.Services
         {
             return _notesrepo.IsNotesExists(notesId);
         }
-        public List<NotesEntity> GetAllNotes(int userId)
+        public List<NotesResponse> GetAllNotes(int userId)
         {
             return _notesrepo.GetAllNotes(userId);
         }

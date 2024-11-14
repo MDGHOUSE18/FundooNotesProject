@@ -15,6 +15,8 @@ using System.Text;
 
 namespace FundooNotesProject.Controllers
 {
+    
+
     [Route("api/[Controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -22,13 +24,14 @@ namespace FundooNotesProject.Controllers
         private readonly IUserManager manager;
         private readonly IBus bus;
         private readonly TokenHelper tokenHelper;
-        //private readonly ILogger<UserController> logger;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserManager manager, IBus bus,TokenHelper tokenHelper) {
+        public UserController(IUserManager manager, IBus bus,TokenHelper tokenHelper, ILogger<UserController> logger)
+        {
             this.manager = manager;
             this.bus = bus;
             this.tokenHelper = tokenHelper;
-            
+            this._logger = logger;
         }
 
         [HttpPost]
@@ -61,12 +64,15 @@ namespace FundooNotesProject.Controllers
         [Route("login")]
         public IActionResult Login([FromBody] LoginRequest login)
         {
+            _logger.LogInformation("Login attempt for user: {Username}", login.Username);
             var token = manager.Login(login);
 
             if (token == null)
             {
+                _logger.LogWarning("Invalid login credentials for user: {Username}", login.Username);
                 return BadRequest(new ResponseModel<string> { Success = false, Message = "Invalid login credentials", Data = null });
             }
+            _logger.LogInformation("Login successful for user: {Username}", login.Username);
             return Ok(new ResponseModel<string> { Success = true, Message = "Login Succeesfull",Data=token});
         }
 

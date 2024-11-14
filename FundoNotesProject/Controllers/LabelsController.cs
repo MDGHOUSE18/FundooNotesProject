@@ -56,7 +56,7 @@ namespace FundooNotesProject.Controllers
             if (labels != null)
             {
                 
-                return BadRequest(new ResponseModel<List<LabelEntity>>
+                return Ok(new ResponseModel<List<LabelEntity>>
                 {
                     Success = true,
                     Message = "Retrieved all notes successfully",

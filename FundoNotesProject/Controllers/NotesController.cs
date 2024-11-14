@@ -5,7 +5,10 @@ using ManagerLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using RepositoryLayer.Entities;
+using System.Text;
 
 namespace FundooNotesProject.Controllers
 {
@@ -14,10 +17,12 @@ namespace FundooNotesProject.Controllers
     public class NotesController : ControllerBase
     {
         private readonly INotesManager _notesManager;
+        private readonly IDistributedCache _distributedCache;
 
-        public NotesController(INotesManager notesManager)
+        public NotesController(INotesManager notesManager,IDistributedCache distributedCache)
         {
             _notesManager = notesManager;
+            _distributedCache = distributedCache;
         }
 
         [Authorize]
@@ -41,8 +46,8 @@ namespace FundooNotesProject.Controllers
             return BadRequest(new ResponseModel<NotesEntity>
             {
                 Success = false,
-                Message = "Notesnot created",
-                Data = notes
+                Message = "Notes not created",
+                Data = null
             });
         }
 
@@ -55,7 +60,7 @@ namespace FundooNotesProject.Controllers
 
             if (allNotes != null)
             {
-                return Ok(new ResponseModel<List<NotesEntity>>
+                return Ok(new ResponseModel<List<NotesResponse>>
                 {
                     Success = true,
                     Message = "Retrieved all notes successfully",
@@ -71,6 +76,42 @@ namespace FundooNotesProject.Controllers
             });
         }
 
+        [Authorize,HttpGet]
+        [Route("redis")]
+        public async Task<IActionResult> GetAllNotesUsingRedisCache()
+        {
+            
+            var cacheKey = "NotesList";
+            string serializedNotesList;
+            var NotesList = new List<NotesResponse>();
+            byte[] redisNotesList = await _distributedCache.GetAsync(cacheKey);
+            if (redisNotesList != null)
+            {
+                serializedNotesList = Encoding.UTF8.GetString(redisNotesList);
+                NotesList = JsonConvert.DeserializeObject<List<NotesResponse>>(
+                    serializedNotesList);
+            }
+            else
+            {
+                var userId = int.Parse( User.Claims.FirstOrDefault(c => c.Type == "UserId").Value);
+                NotesList = _notesManager.GetAllNotes(userId);
+                serializedNotesList = JsonConvert.SerializeObject(NotesList);
+                //Console.WriteLine("Serialized Notes: "+serializedNotesList);
+                var redisNoteList = Encoding.UTF8.GetBytes(serializedNotesList);
+                DistributedCacheEntryOptions options = new DistributedCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(2))
+                    .SetAbsoluteExpiration(DateTime.Now.AddMinutes(10));
+                await _distributedCache.SetAsync(cacheKey, redisNoteList, options);
+
+            }
+            return Ok(new ResponseModel<List<NotesResponse>>
+            {
+                Success = true,
+                Message = NotesList.Any() ? "Retrieved all notes successfully" : "No notes available",
+                Data = NotesList
+            });
+
+        }
 
         [Authorize]
         [HttpGet]

@@ -1,4 +1,6 @@
 ﻿using CommonLayer.Request_Models;
+using CommonLayer.Responses;
+using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.Context;
 using RepositoryLayer.Entities;
 using RepositoryLayer.Interfaces;
@@ -44,11 +46,40 @@ namespace RepositoryLayer.Services
             return notes;
         }
 
-        public List<NotesEntity> GetAllNotes(int userId)
-        {
-            return _context.Notes.Where(x => x.UserId == userId).ToList();
+        //public List<NotesEntity> GetAllNotes(int userId)
+        //{
 
+        //    return _context.Notes
+        //           .Where(x => x.UserId == userId)
+        //           .Include(x => x.Labels)  // Eagerly load Labels
+        //           .ToList();
+
+        //}
+
+        public List<NotesResponse> GetAllNotes(int userId)
+        {
+            var notes = _context.Notes
+                       .Where(x => x.UserId == userId)
+                       .Include(x => x.Labels)  // Eagerly load Labels
+                       .ToList();
+
+            // Transform the NotesEntity objects to NotesResponse objects
+            var notesResponseList = notes.Select(note => new NotesResponse
+            {
+                NotesId = note.NotesId,
+                Title = note.Title,
+                Description = note.Description,
+                Colour = note.Colour,
+                Image = note.Image,
+                IsArchive = note.IsArchive,
+                IsPin = note.IsPin,
+                IsTrash = note.IsTrash,
+                Labels = note.Labels.Select(label => label.Name).ToList() // Assuming Label has a 'Name' property
+            }).ToList();
+
+            return notesResponseList;
         }
+
 
         public bool IsNotesExists(int notesId)
         {

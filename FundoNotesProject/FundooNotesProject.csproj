@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
     <PackageReference Include="MassTransit" Version="6.2.5" />
     <PackageReference Include="MassTransit.AspNetCore" Version="6.2.5" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="6.2.5" />
@@ -22,6 +23,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.0" />
+    <PackageReference Include="NLog" Version="5.3.4" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.14" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
