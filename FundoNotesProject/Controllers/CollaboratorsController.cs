@@ -31,7 +31,6 @@ namespace FundooNotesProject.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("add")]
         public IActionResult AddCollaborator([FromBody] CollaboratorModel model)
         {
             _logger.LogInformation("Attempting to add collaborator with Email: {Email} to NotesId: {NotesId}", model.Email, model.NotesId);
@@ -104,7 +103,7 @@ namespace FundooNotesProject.Controllers
         }
 
         [Authorize, HttpDelete]
-        [Route("delete")]
+        [Route("{notesId}/{email}")]
         public IActionResult DeleteCollaborator([FromBody] CollaboratorModel model)
         {
             var userId = int.Parse(User.Claims.First(x => x.Type == "UserId").Value);

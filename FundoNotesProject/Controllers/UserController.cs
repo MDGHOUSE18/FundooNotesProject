@@ -84,7 +84,7 @@ namespace FundooNotesProject.Controllers
         }
 
         [HttpPost]
-        [Route("forgetpassword")]
+        [Route("forgotPassword")]
         public async Task<IActionResult> ForgetPassword(string Email)
         {
             _logger.LogInformation($"Forget password request received for email: {Email}");
@@ -123,7 +123,7 @@ namespace FundooNotesProject.Controllers
 
         [Authorize(AuthenticationSchemes = "ResetPasswordScheme")]
         [HttpPost]
-        [Route("resetpassword")]
+        [Route("resetPassword")]
         public IActionResult ResetPassword([FromBody] ResetPassword resetPassword)
         {
             _logger.LogInformation($"POST request received for password reset");

@@ -30,7 +30,6 @@ namespace FundooNotesProject.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("createnote")]
         public IActionResult CreateNotes([FromBody] NotesModel notesModel)
         {
             var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value);
@@ -88,7 +87,7 @@ namespace FundooNotesProject.Controllers
         }
 
         [Authorize, HttpGet]
-        [Route("redis")]
+        [Route("cache")]
         public async Task<IActionResult> GetAllNotesUsingRedisCache()
         {
             _logger.LogInformation("Fetching notes from Redis cache.");
@@ -156,7 +155,7 @@ namespace FundooNotesProject.Controllers
 
         [Authorize]
         [HttpPut]
-        [Route("update/{notesId}")]
+        [Route("{notesId}")]
         public IActionResult UpdateNotes(int notesId, [FromBody] UpdateNotesModel updateNotesModel)
         {
             if (updateNotesModel == null)
@@ -195,7 +194,7 @@ namespace FundooNotesProject.Controllers
 
         [Authorize]
         [HttpDelete]
-        [Route("delete/{notesId}")]
+        [Route("{notesId}")]
         public IActionResult DeleteNotes(int notesId)
         {
             _logger.LogInformation($"Deleting note with ID: {notesId}");
@@ -221,7 +220,7 @@ namespace FundooNotesProject.Controllers
         }
 
         [Authorize, HttpPatch]
-        [Route("{notesId}/updateColour")]
+        [Route("{notesId}/colour")]
         public IActionResult Colour(int notesId, string newColour)
         {
             _logger.LogInformation($"Attempting to update color of note with ID: {notesId} to {newColour}");

@@ -26,7 +26,6 @@ namespace FundooNotesProject.Controllers
         }
 
         [Authorize, HttpPost]
-        [Route("addlabel")]
         public IActionResult AddLabel(string labelName)
         {
             _logger.LogInformation("Checking if label with name {LabelName} already exists", labelName);
@@ -57,7 +56,6 @@ namespace FundooNotesProject.Controllers
         }
 
         [Authorize, HttpGet]
-        [Route("getlabels")]
         public IActionResult GetAllLabels()
         {
             var userId = int.Parse(User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value);
@@ -88,7 +86,7 @@ namespace FundooNotesProject.Controllers
 
 
         [Authorize, HttpPut]
-        [Route("{labelId}/edit")]
+        [Route("{labelId}")]
         public IActionResult EditLabel(int labelId, string newName)
         {
             _logger.LogInformation("Editing label with ID {LabelId}. New name: {NewName}", labelId, newName);
@@ -113,8 +111,8 @@ namespace FundooNotesProject.Controllers
             });
         }
 
-        [Authorize, HttpPut]
-        [Route("{labelId}/delete")]
+        [Authorize, HttpDelete]
+        [Route("{labelId}")]
         public IActionResult DeleteLabel(int labelId)
         {
             _logger.LogInformation("Attempting to delete label with ID {LabelId}", labelId);
@@ -139,8 +137,8 @@ namespace FundooNotesProject.Controllers
             });
         }
 
-        [Authorize, HttpPatch]
-        [Route("addlabeltonote")]
+        [Authorize, HttpPost]
+        [Route("Notes/{notesId}/Labels/{labelId}")]
         public IActionResult AddLabelToNote(int labelId, int notesId)
         {
             _logger.LogInformation("Adding label with ID {LabelId} to note with ID {NotesId}", labelId, notesId);
