@@ -32,4 +32,10 @@ FundooNotes is a feature-rich note-taking application designed to help users org
 - **Database:** SQL Server  
 - **Authentication:** JWT  
 
+---
 
+## Contact  
+
+**Developer:** Bangar Mahammed Ghouse
+- **LinkedIn:** [mahammed-ghouse](https://linkedin.com/in/mahammed-ghouse-05b1a4203)  
+- **GitHub:** [MDGHOUSE18](https://github.com/MDGHOUSE18)
