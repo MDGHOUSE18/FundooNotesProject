@@ -12,6 +12,7 @@ using RepositoryLayer.Migrations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FundooNotesProject.Controllers
 {
@@ -40,6 +41,28 @@ namespace FundooNotesProject.Controllers
         [Route("register")]
         public IActionResult Register([FromBody] RegistrationModel user)
         {
+            var emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+            if (!Regex.IsMatch(user.Email, emailPattern))
+            {
+                _logger.LogWarning("Invalid email format");
+                return BadRequest (new Response
+                {
+                    Success = false,
+                    Message = "Invalid email format. Examples of valid emails: 'example@gmail.com'"
+                });
+            }
+
+            var passwordPattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
+            if (!Regex.IsMatch(user.Password, passwordPattern))
+            {
+                _logger.LogWarning("Password does not meet the required complexity");
+                return BadRequest( new Response
+                {
+                    Success = false,
+                    Message = "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character. Examples: 'Password@123' "
+                });
+            }
+
             _logger.LogInformation($"POST request received at 'api/UserController/register' for email: {user.Email}");
             var isExists = manager.IsRegistered(user.Email);
 
@@ -70,6 +93,17 @@ namespace FundooNotesProject.Controllers
         [Route("login")]
         public IActionResult Login([FromBody] LoginRequest login)
         {
+            var emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+            if (!Regex.IsMatch(login.Username, emailPattern))
+            {
+                _logger.LogWarning("Invalid email format");
+                return BadRequest(new Response
+                {
+                    Success = false,
+                    Message = "Invalid email format. Examples of valid emails: 'example@gmail.com'"
+                });
+            }
+
             _logger.LogInformation($"Login attempt for user: {login.Username}");
             var token = manager.Login(login);
 
@@ -87,6 +121,18 @@ namespace FundooNotesProject.Controllers
         [Route("forgotPassword")]
         public async Task<IActionResult> ForgetPassword(string Email)
         {
+            var emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+            if (!Regex.IsMatch(Email, emailPattern))
+            {
+                _logger.LogWarning("Invalid email format");
+                return BadRequest(new Response
+                {
+                    Success = false,
+                    Message = "Invalid email format. Examples of valid emails: 'example@gmail.com'"
+                });
+            }
+
+            
             _logger.LogInformation($"Forget password request received for email: {Email}");
             try
             {
@@ -126,6 +172,17 @@ namespace FundooNotesProject.Controllers
         [Route("resetPassword")]
         public IActionResult ResetPassword([FromBody] ResetPassword resetPassword)
         {
+
+            var passwordPattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
+            if (!Regex.IsMatch(resetPassword.Password, passwordPattern))
+            {
+                _logger.LogWarning("Password does not meet the required complexity");
+                return BadRequest(new Response
+                {
+                    Success = false,
+                    Message = "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character. Examples: 'Password@123' "
+                });
+            }
             _logger.LogInformation($"POST request received for password reset");
 
             // Extract the token from the Authorization header

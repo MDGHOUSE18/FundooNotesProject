@@ -14,8 +14,8 @@ namespace CommonLayer.Request_Models
         {
             string FromEmail = "mdghouse23102@gmail.com";
             MailMessage Message = new MailMessage(FromEmail,ToEmail);
-            string MailBody = "the token for the reset Password : " + Token;
-            Message.Subject = "Token Generated for resetting Password";
+            string MailBody = $"The token for resetting your password is: <strong>{Token}</strong>";
+            Message.Subject = "Token Generated for Resetting Password";
             Message.Body = MailBody.ToString();
             Message.BodyEncoding = Encoding.UTF8;
             Message.IsBodyHtml = true;
